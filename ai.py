@@ -25,7 +25,7 @@ if pyetja := st.chat_input("Shkruaj diçka këtu..."):
     
     try:
         # Adresa e saktë pa v1beta dhe pa asnjë gabim sintakse
-        uurl = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={}".format(API_KEY)
+        url = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={}".format(API_KEY)
         
         payload = {
             "contents": [
