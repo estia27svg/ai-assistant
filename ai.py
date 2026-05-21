@@ -1,8 +1,8 @@
 import streamlit as st
 import requests
 
-# API Key i saktë që ke krijuar
-API_KEY = "AIzaSyB08yOyu_FH0adF53y1j11xbZ0bmzGtd0c" 
+# Vendos çelësin tënd të Groq (gsk_...) brenda thonjëzave:
+API_KEY = "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" 
 
 st.set_page_config(page_title="AI Assistant", page_icon="🤖", layout="centered")
 
@@ -24,24 +24,23 @@ if pyetja := st.chat_input("Shkruaj diçka këtu..."):
     st.session_state.messages.append({"role": "user", "content": pyetja})
     
     try:
-        # Formati i ri zyrtar i kërkesës për Google Gemini v1beta
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"
-        headers = {"Content-Type": "application/json"}
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json"
+        }
         payload = {
-            "contents": [{
-                "parts": [{"text": pyetja}]
-            }]
+            "model": "llama3-8b-8192",
+            "messages": [{"role": "user", "content": pyetja}]
         }
         
         response = requests.post(url, json=payload, headers=headers, timeout=15)
         data = response.json()
         
         if response.status_code == 200:
-            pergjigja_ia = data['candidates'][0]['content']['parts'][0]['text']
+            pergjigja_ia = data['choices'][0]['message']['content']
         else:
-            # Shfaq mesazhin e saktë nga Google nëse ka gabim strukture
-            error_msg = data.get('error', {}).get('message', 'Gabim i panjohur')
-            pergjigja_ia = f"Gabim nga serveri ({response.status_code}): {error_msg}"
+            pergjigja_ia = f"Gabim nga serveri: {response.status_code}"
             
     except Exception as e:
         pergjigja_ia = "Ndodhi një gabim gjatë lidhjes. Ju lutem provojeni përsëri."
@@ -50,4 +49,3 @@ if pyetja := st.chat_input("Shkruaj diçka këtu..."):
         st.markdown(pergjigja_ia)
     
     st.session_state.messages.append({"role": "assistant", "content": pergjigja_ia})
-    
