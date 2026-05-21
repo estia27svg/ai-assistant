@@ -1,7 +1,7 @@
 import streamlit as st
-import requests
+from google import genai
 
-# API Key yt i ri dhe i pastër
+# API Key yt i saktë
 API_KEY = "AIzaSyB8sMBHzHqQnwnfvu6aVNQOMr6H4N5Y1WY"
 
 st.set_page_config(page_title="AI Assistant", page_icon="🤖", layout="centered")
@@ -24,26 +24,13 @@ if pyetja := st.chat_input("Shkruaj diçka këtu..."):
     st.session_state.messages.append({"role": "user", "content": pyetja})
     
     try:
-        # Adresa e saktë pa v1beta dhe pa asnjë gabim sintakse
-        url = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={}".format(API_KEY)
-        
-        payload = {
-            "contents": [
-                {
-                    "parts": [
-                        {"text": pyetja}
-                    ]
-                }
-            ]
-        }
-        
-        response = requests.post(url, json=payload, timeout=15)
-        
-        if response.status_code == 200:
-            data = response.json()
-            pergjigja_ia = data['candidates'][0]['content']['parts'][0]['text']
-        else:
-            pergjigja_ia = f"Gabim nga Google ({response.status_code}): {response.text}"
+        # Lidhja zyrtare përmes librarisë Google GenAI
+        client = genai.Client(api_key=API_KEY)
+        response = client.models.generate_content(
+            model='gemini-1.5-flash',
+            contents=pyetja,
+        )
+        pergjigja_ia = response.text
             
     except Exception as e:
         pergjigja_ia = f"Ndodhi një gabim gjatë lidhjes: {str(e)}"
