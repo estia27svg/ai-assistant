@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 # API Key yt i ri dhe i pastër
-API_KEY = "AIzaSyB08yOyu_FH0adF53y1j11xbZ0bmzGtd0c"
+API_KEY = "AIzaSyB8sMBHzHqQnwnfvu6aVNQOMr6H4N5Y1WY"
 
 st.set_page_config(page_title="AI Assistant", page_icon="🤖", layout="centered")
 
