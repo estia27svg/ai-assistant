@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-# API Key i ri që sapo krijove (bëj Paste brenda thonjëzave)
+# Vendos API Key-in tënd të ri këtu brenda thonjëzave
 API_KEY = "AIzaSyD1mxaiK4UEBDFPAjSmSlchAoIIWj6MzIM"
 
 st.set_page_config(page_title="AI Assistant", page_icon="🤖", layout="centered")
@@ -24,20 +24,30 @@ if pyetja := st.chat_input("Shkruaj diçka këtu..."):
     st.session_state.messages.append({"role": "user", "content": pyetja})
     
     try:
+        # URL dhe struktura zyrtare e saktë
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
-        headers = {"Content-Type": "application/json"}
-        payload = {"contents": [{"parts": [{"text": pyetja}]}]}
         
-        response = requests.post(url, json=payload, headers=headers, timeout=15)
-        data = response.json()
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {"text": pyetja}
+                    ]
+                }
+            ]
+        }
+        
+        response = requests.post(url, json=payload, timeout=15)
         
         if response.status_code == 200:
+            data = response.json()
             pergjigja_ia = data['candidates'][0]['content']['parts'][0]['text']
         else:
-            pergjigja_ia = "Gabim lidhjeje me serverin e Google."
+            # Nëse ka gabim, na tregon fiks çfarë thotë Google që ta shohim
+            pergjigja_ia = f"Gabim nga Google ({response.status_code}): {response.text}"
             
     except Exception as e:
-        pergjigja_ia = "Ndodhi një gabim gjatë lidhjes."
+        pergjigja_ia = f"Ndodhi një gabim gjatë lidhjes: {str(e)}"
     
     with st.chat_message("assistant"):
         st.markdown(pergjigja_ia)
