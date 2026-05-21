@@ -1,8 +1,8 @@
 import streamlit as st
 import requests
 
-# Vendos API Key-in tënd të ri këtu brenda thonjëzave
-API_KEY = "AIzaSyD1mxaiK4UEBDFPAjSmSlchAoIIWj6MzIM"
+# API Key yt i ri dhe i pastër
+API_KEY = "AIzaSyB08yOyu_FH0adF53y1j11xbZ0bmzGtd0c"
 
 st.set_page_config(page_title="AI Assistant", page_icon="🤖", layout="centered")
 
@@ -24,9 +24,8 @@ if pyetja := st.chat_input("Shkruaj diçka këtu..."):
     st.session_state.messages.append({"role": "user", "content": pyetja})
     
     try:
-        # URL dhe struktura zyrtare e saktë
-        url = f# URL e saktë e përditësuar pa v1beta
-        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+        # Adresa e saktë pa v1beta dhe pa asnjë gabim sintakse
+        uurl = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={}".format(API_KEY)
         
         payload = {
             "contents": [
@@ -44,7 +43,6 @@ if pyetja := st.chat_input("Shkruaj diçka këtu..."):
             data = response.json()
             pergjigja_ia = data['candidates'][0]['content']['parts'][0]['text']
         else:
-            # Nëse ka gabim, na tregon fiks çfarë thotë Google që ta shohim
             pergjigja_ia = f"Gabim nga Google ({response.status_code}): {response.text}"
             
     except Exception as e:
