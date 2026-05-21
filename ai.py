@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-# API Key i ri që krijove
+# API Key i saktë që ke krijuar
 API_KEY = "AIzaSyB08yOyu_FH0adF53y1j11xbZ0bmzGtd0c" 
 
 st.set_page_config(page_title="AI Assistant", page_icon="🤖", layout="centered")
@@ -24,16 +24,24 @@ if pyetja := st.chat_input("Shkruaj diçka këtu..."):
     st.session_state.messages.append({"role": "user", "content": pyetja})
     
     try:
+        # Formati i ri zyrtar i kërkesës për Google Gemini v1beta
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"
-        payload = {"contents": [{"parts": [{"text": pyetja}]}]}
+        headers = {"Content-Type": "application/json"}
+        payload = {
+            "contents": [{
+                "parts": [{"text": pyetja}]
+            }]
+        }
         
-        response = requests.post(url, json=payload, timeout=15)
+        response = requests.post(url, json=payload, headers=headers, timeout=15)
         data = response.json()
         
         if response.status_code == 200:
             pergjigja_ia = data['candidates'][0]['content']['parts'][0]['text']
         else:
-            pergjigja_ia = f"Gabim nga serveri: {response.status_code}. Kontrolloni nëse API Key është i saktë."
+            # Shfaq mesazhin e saktë nga Google nëse ka gabim strukture
+            error_msg = data.get('error', {}).get('message', 'Gabim i panjohur')
+            pergjigja_ia = f"Gabim nga serveri ({response.status_code}): {error_msg}"
             
     except Exception as e:
         pergjigja_ia = "Ndodhi një gabim gjatë lidhjes. Ju lutem provojeni përsëri."
