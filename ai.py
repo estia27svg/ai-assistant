@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 # 1. VENDOS API KEY TËND TË PLOTË BRENDA THONJËZAVE MË POSHTË:
-API_KEY = "AIzaSyBTjtBacgoAfcnCoX9qr3NdvGgm0mMQ8UE" 
+API_KEY = "AIzaSyB08yOyu_FH0aDf53y1j1lxbZ0bmzGtD0c" 
 
 # Konfigurimi i faqes
 st.set_page_config(page_title="AI Assistant", page_icon="🤖", layout="centered")
