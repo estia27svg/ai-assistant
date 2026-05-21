@@ -1,10 +1,9 @@
 import streamlit as st
 import requests
 
-# 1. VENDOS API KEY TËND TË PLOTË BRENDA THONJËZAVE MË POSHTË:
-API_KEY = "AIzaSyB08yOyu_FH0aDf53y1j1lxbZ0bmzGtD0c" 
+# API Key i ri që krijove
+API_KEY = "AIzaSyB08yOyu_FH0adF53y1j11xbZ0bmzGtd0c" 
 
-# Konfigurimi i faqes
 st.set_page_config(page_title="AI Assistant", page_icon="🤖", layout="centered")
 
 st.markdown("<h1 style='text-align: center; color: #4A90E2;'>🤖 AI Chat Assistant</h1>", unsafe_allow_html=True)
@@ -24,7 +23,6 @@ if pyetja := st.chat_input("Shkruaj diçka këtu..."):
     
     st.session_state.messages.append({"role": "user", "content": pyetja})
     
-    # Lidhja e re direkte dhe e sigurt me Google Gemini
     try:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"
         payload = {"contents": [{"parts": [{"text": pyetja}]}]}
@@ -44,3 +42,4 @@ if pyetja := st.chat_input("Shkruaj diçka këtu..."):
         st.markdown(pergjigja_ia)
     
     st.session_state.messages.append({"role": "assistant", "content": pergjigja_ia})
+    
