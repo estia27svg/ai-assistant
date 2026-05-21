@@ -1,52 +1,39 @@
 import streamlit as st
-import requests
+from openai import OpenAI
 
-# API Key yt i saktë që pamë te screenshot-i
-API_KEY = "AIzaSyB08yOyu_FH0adF53y1j11xbZ0bmzGtd0c"
+st.title("🤖 AI Assistant")
 
-st.set_page_config(page_title="AI Assistant", page_icon="🤖", layout="centered")
+api_key = st.text_input("Vendos OpenAI API Key:", type="password")
 
-st.markdown("<h1 style='text-align: center; color: #4A90E2;'>🤖 AI Chat Assistant</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #777;'>Pyetni çfarë të dëshironi dhe AI do t'ju përgjigjet!</p>", unsafe_allow_html=True)
-st.divider()
+if api_key:
+    client = OpenAI(api_key=api_key)
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
 
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+    for msg in st.session_state.messages:
+        with st.chat_message(msg["role"]):
+            st.write(msg["content"])
 
-if pyetja := st.chat_input("Shkruaj diçka këtu..."):
-    with st.chat_message("user"):
-        st.markdown(pyetja)
-    
-    st.session_state.messages.append({"role": "user", "content": pyetja})
-    
-    try:
-        # URL e saktë për modelin 1.5-flash
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
-        
-        headers = {"Content-Type": "application/json"}
-        payload = {
-            "contents": [{
-                "parts": [{"text": pyetja}]
-            }]
-        }
-        
-        response = requests.post(url, json=payload, headers=headers, timeout=15)
-        data = response.json()
-        
-        if response.status_code == 200:
-            pergjigja_ia = data['candidates'][0]['content']['parts'][0]['text']
-        else:
-            error_details = data.get('error', {}).get('message', 'Gabim i panjohur')
-            pergjigja_ia = f"Gabim ({response.status_code}): {error_details}"
-            
-    except Exception as e:
-        pergjigja_ia = f"Ndodhi një gabim gjatë lidhjes: {str(e)}"
-    
-    with st.chat_message("assistant"):
-        st.markdown(pergjigja_ia)
-    
-    st.session_state.messages.append({"role": "assistant", "content": pergjigja_ia})
+    user_input = st.chat_input("Shkruaj mesazhin...")
+
+    if user_input:
+        st.session_state.messages.append({"role": "user", "content": user_input})
+
+        with st.chat_message("user"):
+            st.write(user_input)
+
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=st.session_state.messages
+        )
+
+        reply = response.choices[0].message.content
+
+        with st.chat_message("assistant"):
+            st.write(reply)
+
+        st.session_state.messages.append({"role": "assistant", "content": reply})
+
+else:
+    st.info("Vendos API key për të filluar")
