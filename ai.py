@@ -1,51 +1,46 @@
 import streamlit as st
-from google import genai
+import requests
 
-# 1. Vendosni çelësin tuaj API brenda thonjëzave më poshtë
-API_KEY = "AIzaSyBTjtBacgoAfcnCoX9qr3NdvGgm0mMQ8UE"
+# 1. VENDOS API KEY TËND TË PLOTË BRENDA THONJËZAVE MË POSHTË:
+API_KEY = "AIzaSyBTjtBacgoAfcnCoX9qr3NdvGgm0mMQ8UE" 
 
-# Lidhja me modelin e Inteligjencës Artificiale
-try:
-    client = genai.Client(api_key=API_KEY)
-except Exception as e:
-    st.error(f"Gabim në konfigurim: {e}")
+# Konfigurimi i faqes
+st.set_page_config(page_title="AI Assistant", page_icon="🤖", layout="centered")
 
-# Konfigurimi i faqes ueb (Pamja e aplikacionit)
-st.set_page_config(page_title="AI Chat Assistant", page_icon="🤖", layout="centered")
-st.title("🤖 AI Chat Assistant")
-st.write("Projekt TIK - Mirësevini në chatbot-in tim personal!")
+st.markdown("<h1 style='text-align: center; color: #4A90E2;'>🤖 AI Chat Assistant</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #777;'>Pyetni çfarë të dëshironi dhe AI do t'ju përgjigjet!</p>", unsafe_allow_html=True)
+st.divider()
 
-# Krijimi i historikut të bisedës në kujtesë
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Shfaqja e mesazheve të mëparshme në ekran
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Fusha ku shkruhet pyetja (Chat Input)
 if pyetja := st.chat_input("Shkruaj diçka këtu..."):
-    # Shfaq mesazhin e përdoruesit
     with st.chat_message("user"):
         st.markdown(pyetja)
-    st.session_state.messages.append({"role": "user", "content": pyetja})
-
-    # Dërgimi i pyetjes te Gemini dhe marrja e përgjigjes
-    try:
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=pyetja
-        )
-        pergjigjja_ia = response.text
-    except Exception as e:
-        if "503" in str(e) or "UNAVAILABLE" in str(e):
-            pergjigjja_ia = "Serveri është i mbingarkuar, ju lutem provoni përsëri pas pak sekondash."
-        else:
-            pergjigjja_ia = "Ndodhi një gabim gjatë lidhjes. Kontrolloni internetin."
-
-    # Shfaq përgjigjen e AI në ekran
-    with st.chat_message("assistant"):
-        st.markdown(pergjigjja_ia)
-    st.session_state.messages.append({"role": "assistant", "content": pergjigjja_ia})
     
+    st.session_state.messages.append({"role": "user", "content": pyetja})
+    
+    # Lidhja e re direkte dhe e sigurt me Google Gemini
+    try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"
+        payload = {"contents": [{"parts": [{"text": pyetja}]}]}
+        
+        response = requests.post(url, json=payload, timeout=15)
+        data = response.json()
+        
+        if response.status_code == 200:
+            pergjigja_ia = data['candidates'][0]['content']['parts'][0]['text']
+        else:
+            pergjigja_ia = f"Gabim nga serveri: {response.status_code}. Kontrolloni nëse API Key është i saktë."
+            
+    except Exception as e:
+        pergjigja_ia = "Ndodhi një gabim gjatë lidhjes. Ju lutem provojeni përsëri."
+    
+    with st.chat_message("assistant"):
+        st.markdown(pergjigja_ia)
+    
+    st.session_state.messages.append({"role": "assistant", "content": pergjigja_ia})
