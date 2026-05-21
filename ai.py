@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-# API Key yt i saktë
+# API Key yt i saktë që pamë te screenshot-i
 API_KEY = "AIzaSyB08yOyu_FH0adF53y1j11xbZ0bmzGtd0c"
 
 st.set_page_config(page_title="AI Assistant", page_icon="🤖", layout="centered")
@@ -24,22 +24,22 @@ if pyetja := st.chat_input("Shkruaj diçka këtu..."):
     st.session_state.messages.append({"role": "user", "content": pyetja})
     
     try:
-        # Përdorim modelin 1.5-flash që është 100% i përshtatshëm me këtë strukturë
+        # URL e saktë për modelin 1.5-flash
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
         
+        headers = {"Content-Type": "application/json"}
         payload = {
             "contents": [{
                 "parts": [{"text": pyetja}]
             }]
         }
         
-        response = requests.post(url, json=payload, timeout=15)
+        response = requests.post(url, json=payload, headers=headers, timeout=15)
         data = response.json()
         
         if response.status_code == 200:
             pergjigja_ia = data['candidates'][0]['content']['parts'][0]['text']
         else:
-            # Nëse ka gabim, na tregon fiks çfarë thotë Google
             error_details = data.get('error', {}).get('message', 'Gabim i panjohur')
             pergjigja_ia = f"Gabim ({response.status_code}): {error_details}"
             
